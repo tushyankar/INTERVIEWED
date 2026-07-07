@@ -1,13 +1,167 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum InterviewStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TokenType {
+  REFRESH
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  password    String
+  fullName    String
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  resume       Resume?
+  interviews   Interview[]
+  analytics    Analytics?
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model Resume {
+  id              String   @id @default(cuid())
+
+  userId          String   @unique
+
+  originalFile    String
+  parsedText      String   @db.Text
+
+  skills          Json?
+
+  experienceYears Int?
+
+  uploadedAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("resumes")
+}
+
+model Interview {
+  id          String @id @default(cuid())
+
+  userId      String
+
+  role        String
+
+  difficulty  String
+
+  status      InterviewStatus @default(PENDING)
+
+  createdAt   DateTime @default(now())
+
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  questions Question[]
+
+  @@index([userId])
+
+  @@map("interviews")
+}
+
+model Question {
+
+  id String @id @default(cuid())
+
+  interviewId String
+
+  questionText String @db.Text
+
+  aiGenerated Boolean @default(true)
+
+  order Int
+
+  interview Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+
+  responses Response[]
+
+  @@index([interviewId])
+
+  @@map("questions")
+}
+
+model Response {
+
+  id String @id @default(cuid())
+
+  questionId String
+
+  transcript String? @db.Text
+
+  videoUrl String?
+
+  aiFeedback Json?
+
+  score Float?
+
+  createdAt DateTime @default(now())
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+
+  @@map("responses")
+}
+
+model Analytics {
+
+  id String @id @default(cuid())
+
+  userId String @unique
+
+  averageScore Float @default(0)
+
+  interviewsTaken Int @default(0)
+
+  strongestSkill String?
+
+  weakestSkill String?
+
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("analytics")
+}
+
+model RefreshToken {
+
+  id String @id @default(cuid())
+
+  userId String
+
+  token String @unique
+
+  type TokenType @default(REFRESH)
+
+  expiresAt DateTime
+
+  revoked Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+
+  @@map("refresh_tokens")
 }
