@@ -75,7 +75,6 @@ export async function login(data: LoginInput) {
   });
 
   const expiresAt = new Date();
-
   expiresAt.setDate(expiresAt.getDate() + 7);
 
   await createRefreshToken(
@@ -128,8 +127,16 @@ export async function refreshAccessToken(token: string) {
   });
 }
 
-export async function logout(userId: string) {
-  await deleteUserRefreshTokens(userId);
+export async function logout(refreshToken: string) {
+  const storedToken = await findRefreshToken(refreshToken);
+
+  if (!storedToken) {
+    return {
+      success: true,
+    };
+  }
+
+  await deleteUserRefreshTokens(storedToken.userId);
 
   return {
     success: true,
