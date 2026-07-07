@@ -19,35 +19,40 @@ enum TokenType {
 }
 
 model User {
-  id          String   @id @default(cuid())
-  email       String   @unique
-  password    String
-  fullName    String
+  id       String @id @default(cuid())
+  email    String @unique
+  password String
+  fullName String
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  resume       Resume?
-  interviews   Interview[]
-  analytics    Analytics?
+  resume        Resume?
+  interviews    Interview[]
+  analytics     Analytics?
   refreshTokens RefreshToken[]
 
   @@map("users")
 }
 
 model Resume {
-  id              String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  userId          String   @unique
+  userId String @unique
 
-  originalFile    String
-  parsedText      String   @db.Text
+  originalName String
+  filename     String
+  mimeType     String
+  size         Int
 
-  skills          Json?
+  extractedText String @db.Text
+
+  skills Json?
 
   experienceYears Int?
 
-  uploadedAt      DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -55,31 +60,29 @@ model Resume {
 }
 
 model Interview {
-  id          String @id @default(cuid())
+  id String @id @default(cuid())
 
-  userId      String
+  userId String
 
-  role        String
+  role String
 
-  difficulty  String
+  difficulty String
 
-  status      InterviewStatus @default(PENDING)
+  status InterviewStatus @default(PENDING)
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 
-  updatedAt   DateTime @updatedAt
+  updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   questions Question[]
 
   @@index([userId])
-
   @@map("interviews")
 }
 
 model Question {
-
   id String @id @default(cuid())
 
   interviewId String
@@ -95,12 +98,10 @@ model Question {
   responses Response[]
 
   @@index([interviewId])
-
   @@map("questions")
 }
 
 model Response {
-
   id String @id @default(cuid())
 
   questionId String
@@ -118,12 +119,10 @@ model Response {
   question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@index([questionId])
-
   @@map("responses")
 }
 
 model Analytics {
-
   id String @id @default(cuid())
 
   userId String @unique
@@ -144,7 +143,6 @@ model Analytics {
 }
 
 model RefreshToken {
-
   id String @id @default(cuid())
 
   userId String
@@ -162,6 +160,5 @@ model RefreshToken {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-
   @@map("refresh_tokens")
 }
