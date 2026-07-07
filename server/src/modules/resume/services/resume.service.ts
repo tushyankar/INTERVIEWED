@@ -1,9 +1,16 @@
 import fs from 'node:fs/promises';
 
+import { ResumeStatus } from '@prisma/client';
 import { PDFParse } from 'pdf-parse';
 
+import { resumeAIService } from '../../ai/services/resume-ai.service.js';
 import ApiError from '../../../utils/ApiError.js';
-import { createResume } from '../repositories/resume.repository.js';
+
+import {
+  createResume,
+  updateResumeAIAnalysis,
+  updateResumeStatus,
+} from '../repositories/resume.repository.js';
 
 export interface UploadedResume {
   userId: string;
@@ -15,6 +22,8 @@ export async function processResume({
   file,
 }: UploadedResume) {
   try {
+    console.log('📄 Reading uploaded file...');
+
     const buffer = await fs.readFile(file.path);
 
     const parser = new PDFParse({
@@ -31,7 +40,9 @@ export async function processResume({
       .replace(/\r/g, '\n')
       .trim();
 
-    return await createResume({
+    console.log('📄 Creating resume record...');
+
+    const resume = await createResume({
       userId,
       originalName: file.originalname,
       filename: file.filename,
@@ -39,9 +50,65 @@ export async function processResume({
       size: file.size,
       extractedText,
     });
-  } catch (error) {
-    console.error('Resume processing failed:', error);
 
-    throw new ApiError(500, 'Failed to process uploaded resume.');
+    console.log(`✅ Resume created: ${resume.id}`);
+
+    void analyzeResumeInBackground(
+      resume.id,
+      extractedText,
+    );
+
+    return resume;
+  } catch (error) {
+    console.error(error);
+
+    throw new ApiError(
+      500,
+      'Failed to process uploaded resume.',
+    );
+  }
+}
+
+async function analyzeResumeInBackground(
+  resumeId: string,
+  extractedText: string,
+): Promise<void> {
+  try {
+    console.log('🚀 Background analysis started');
+
+    await updateResumeStatus(
+      resumeId,
+      ResumeStatus.PROCESSING,
+    );
+
+    console.log('🟡 Status updated to PROCESSING');
+
+    console.log('🤖 Calling Ollama...');
+
+    const analysis =
+      await resumeAIService.analyzeResume(
+        extractedText,
+      );
+
+    console.log('✅ Ollama responded');
+
+    await updateResumeAIAnalysis(
+      resumeId,
+      analysis,
+    );
+
+    console.log('✅ AI analysis saved');
+  } catch (error) {
+    console.error(
+      '❌ Background AI analysis failed:',
+      error,
+    );
+
+    await updateResumeStatus(
+      resumeId,
+      ResumeStatus.FAILED,
+    );
+
+    console.log('🔴 Status updated to FAILED');
   }
 }

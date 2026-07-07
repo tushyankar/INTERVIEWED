@@ -1,32 +1,62 @@
+# =========================
 # Dependencies
+# =========================
 node_modules/
 
+# =========================
 # Environment
+# =========================
 .env
-.env.local
-.env.development
-.env.production
-
-# Keep template
+.env.*
 !.env.example
 
+# =========================
 # Build
+# =========================
 dist/
 build/
 
+# =========================
 # Logs
+# =========================
 *.log
+logs/
 
+# =========================
 # Coverage
+# =========================
 coverage/
 
+# =========================
+# Cache
+# =========================
+.cache/
+
+# =========================
+# Uploads
+# =========================
+server/uploads/
+
+# =========================
+# Cookies
+# =========================
+cookies.txt
+server/cookies.txt
+
+# =========================
+# Prisma
+# =========================
+server/prisma/dev.db
+server/prisma/dev.db-journal
+
+# =========================
 # IDE
+# =========================
 .vscode/
 .idea/
 
+# =========================
 # Operating System
+# =========================
 .DS_Store
 Thumbs.db
-
-# Cache
-.cache/

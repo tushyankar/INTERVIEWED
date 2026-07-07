@@ -24,7 +24,7 @@ export async function uploadResume(
 
     res.status(201).json({
       success: true,
-      message: 'Resume uploaded and processed successfully.',
+      message: 'Resume uploaded successfully. AI analysis has started.',
       data: {
         id: resume.id,
         userId: resume.userId,
@@ -33,8 +33,7 @@ export async function uploadResume(
         mimeType: resume.mimeType,
         size: resume.size,
         extractedText: resume.extractedText,
-        skills: resume.skills,
-        experienceYears: resume.experienceYears,
+        aiAnalysis: resume.aiAnalysis,
         createdAt: resume.createdAt,
         updatedAt: resume.updatedAt,
       },

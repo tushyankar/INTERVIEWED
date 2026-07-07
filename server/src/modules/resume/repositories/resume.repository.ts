@@ -1,3 +1,5 @@
+import { Prisma, ResumeStatus } from '@prisma/client';
+
 import prisma from '../../../lib/prisma.js';
 
 export interface CreateResumeInput {
@@ -11,13 +13,35 @@ export interface CreateResumeInput {
 
 export async function createResume(data: CreateResumeInput) {
   return prisma.resume.create({
+    data,
+  });
+}
+
+export async function updateResumeStatus(
+  resumeId: string,
+  status: ResumeStatus,
+) {
+  return prisma.resume.update({
+    where: {
+      id: resumeId,
+    },
     data: {
-      userId: data.userId,
-      originalName: data.originalName,
-      filename: data.filename,
-      mimeType: data.mimeType,
-      size: data.size,
-      extractedText: data.extractedText,
+      status,
+    },
+  });
+}
+
+export async function updateResumeAIAnalysis(
+  resumeId: string,
+  aiAnalysis: Prisma.InputJsonValue,
+) {
+  return prisma.resume.update({
+    where: {
+      id: resumeId,
+    },
+    data: {
+      aiAnalysis,
+      status: ResumeStatus.COMPLETED,
     },
   });
 }
