@@ -77,6 +77,7 @@ export async function findCurrentUser(userId: string) {
       fullName: true,
       email: true,
       createdAt: true,
+      updatedAt: true,
     },
   });
 }

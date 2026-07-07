@@ -3,26 +3,25 @@ import { Router } from 'express';
 import {
   login,
   logout,
+  me,
   refreshToken,
   signup,
 } from '../controllers/auth.controller.js';
+import { authMiddleware } from '../../../middleware/auth.middleware.js';
 
 const router = Router();
 
 /**
- * Authentication Routes
+ * Public Routes
  */
-
-// Register
 router.post('/register', signup);
-
-// Login
 router.post('/login', login);
-
-// Refresh Access Token
 router.post('/refresh', refreshToken);
 
-// Logout
-router.post('/logout', logout);
+/**
+ * Protected Routes
+ */
+router.post('/logout', authMiddleware, logout);
+router.get('/me', authMiddleware, me);
 
 export default router;

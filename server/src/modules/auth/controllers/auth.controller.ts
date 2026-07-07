@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 
+import ApiError from '../../../utils/ApiError.js';
 import * as authService from '../services/auth.service.js';
 import {
   loginSchema,
@@ -66,11 +67,7 @@ export async function refreshToken(
     const token = req.cookies?.refreshToken as string | undefined;
 
     if (!token) {
-      res.status(401).json({
-        success: false,
-        message: 'Refresh token is missing.',
-      });
-      return;
+      throw new ApiError(401, 'Refresh token is missing.');
     }
 
     const accessToken = await authService.refreshAccessToken(token);
@@ -109,6 +106,27 @@ export async function logout(
     res.status(200).json({
       success: true,
       message: 'Logged out successfully.',
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function me(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    if (!req.user) {
+      throw new ApiError(401, 'Unauthorized.');
+    }
+
+    const user = await authService.getCurrentUser(req.user.id);
+
+    res.status(200).json({
+      success: true,
+      data: user,
     });
   } catch (error) {
     next(error);
