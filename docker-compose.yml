@@ -1,0 +1,80 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: interviewed-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: interviewed_user
+      POSTGRES_PASSWORD: 99459980
+      POSTGRES_DB: interviewed
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U interviewed_user -d interviewed"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - interviewed-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: interviewed-redis
+    restart: unless-stopped
+
+    command: redis-server --appendonly yes
+
+    ports:
+      - "6379:6379"
+
+    volumes:
+      - redis_data:/data
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - interviewed-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: interviewed-pgadmin
+    restart: unless-stopped
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@interviewed.dev
+      PGADMIN_DEFAULT_PASSWORD: admin123
+
+    ports:
+      - "5050:80"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - interviewed-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+  redis_data:
+    driver: local
+
+networks:
+  interviewed-network:
+    driver: bridge
