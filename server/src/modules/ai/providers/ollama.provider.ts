@@ -1,4 +1,3 @@
-import type { AIProvider } from './ai.provider.js';
 import axios from 'axios';
 
 import type { AIProvider } from './ai.provider.js';
@@ -31,7 +30,7 @@ export class OllamaProvider implements AIProvider {
         ],
       },
       {
-        timeout: 10 * 60 * 1000, // 10 minutes
+        timeout: 10 * 60 * 1000,
       },
     );
 

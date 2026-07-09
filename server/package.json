@@ -26,6 +26,7 @@
   "author": "Tushyankar P",
   "license": "MIT",
   "dependencies": {
+    "@google/genai": "^2.10.0",
     "@prisma/client": "^6.16.2",
     "axios": "^1.18.1",
     "bcrypt": "^6.0.0",
