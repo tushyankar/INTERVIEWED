@@ -47,14 +47,26 @@ model Resume {
 
   userId String
 
+  /// Original filename uploaded by the user
   originalName String
-  filename     String
-  mimeType     String
-  size         Int
+
+  /// Random filename stored on disk
+  filename String
+
+  /// Relative path of the uploaded PDF
+  filePath String
+
+  mimeType String
+
+  /// File size in bytes
+  size Int
 
   extractedText String @db.Text
 
   aiAnalysis Json?
+
+  /// User's currently active resume
+  isActive Boolean @default(false)
 
   status ResumeStatus @default(PENDING)
 
@@ -64,14 +76,17 @@ model Resume {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([userId, isActive])
   @@map("resumes")
 }
 
 model Interview {
   id String @id @default(cuid())
 
-  userId     String
-  role       String
+  userId String
+
+  role String
+
   difficulty String
 
   status InterviewStatus @default(PENDING)
@@ -167,4 +182,3 @@ model RefreshToken {
   @@index([userId])
   @@map("refresh_tokens")
 }
-

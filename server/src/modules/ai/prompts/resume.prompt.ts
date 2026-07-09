@@ -3,25 +3,45 @@
  * Resume Analysis Prompt
  * ============================================================
  *
- * This prompt converts an extracted resume into a structured
- * JSON object. The AI MUST respond with valid JSON only.
+ * Converts an extracted resume into a structured Resume
+ * Intelligence object.
+ *
+ * IMPORTANT:
+ * - Return ONLY valid JSON.
+ * - No markdown.
+ * - No explanations.
+ * - Every field MUST exist.
  */
 
 export function buildResumePrompt(
   resumeText: string,
 ): string {
   return `
-You are an expert technical recruiter and resume parser.
+You are an expert software engineering recruiter and resume parser.
 
-Analyse the following resume.
+Your task is to analyse the following resume and convert it into the exact JSON schema below.
 
-Return ONLY valid JSON.
+Rules:
 
-Do NOT include markdown.
+- Return ONLY valid JSON.
+- Do NOT wrap JSON in markdown.
+- Do NOT omit any field.
+- If a value is unavailable, use:
+  - "" for strings
+  - [] for arrays
+  - null only where explicitly allowed
+- Never invent information.
+- Extract as much information as possible.
 
-Do NOT include explanations.
+Career level MUST be exactly one of:
 
-Use this exact schema.
+Student
+Fresher
+Junior
+Mid
+Senior
+
+Return EXACTLY this schema:
 
 {
   "candidate": {
@@ -33,7 +53,7 @@ Use this exact schema.
 
   "summary": "",
 
-  "careerLevel": "",
+  "careerLevel": "Fresher",
 
   "skills": {
     "languages": [],
@@ -45,11 +65,37 @@ Use this exact schema.
     "devops": []
   },
 
-  "experience": [],
+  "experience": [
+    {
+      "company": "",
+      "role": "",
+      "duration": "",
+      "location": "",
+      "description": [
+        ""
+      ]
+    }
+  ],
 
-  "projects": [],
+  "projects": [
+    {
+      "name": "",
+      "technologies": [],
+      "description": "",
+      "highlights": [
+        ""
+      ]
+    }
+  ],
 
-  "education": [],
+  "education": [
+    {
+      "institution": "",
+      "degree": "",
+      "duration": "",
+      "cgpa": ""
+    }
+  ],
 
   "certifications": [],
 
@@ -57,14 +103,6 @@ Use this exact schema.
 
   "recommendedRoles": []
 }
-
-Career level must be one of:
-
-- Student
-- Fresher
-- Junior
-- Mid
-- Senior
 
 Resume:
 

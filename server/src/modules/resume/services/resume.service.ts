@@ -23,6 +23,7 @@ export interface UploadedResume {
  * Upload Resume
  * ============================================================
  */
+
 export async function processResume({
   userId,
   file,
@@ -50,18 +51,30 @@ export async function processResume({
 
     const resume = await createResume({
       userId,
+
       originalName: file.originalname,
+
       filename: file.filename,
+
+      filePath: file.path,
+
       mimeType: file.mimetype,
+
       size: file.size,
+
       extractedText,
+
+      isActive: false,
     });
 
-    console.log(`✅ Resume created: ${resume.id}`);
+    console.log(
+      `✅ Resume created: ${resume.id}`,
+    );
 
     /**
      * Fire-and-forget AI analysis.
      */
+
     void analyzeResumeInBackground(
       resume.id,
       extractedText,
@@ -86,6 +99,7 @@ export async function processResume({
  * Background Resume Intelligence
  * ============================================================
  */
+
 async function analyzeResumeInBackground(
   resumeId: string,
   extractedText: string,
@@ -104,9 +118,6 @@ async function analyzeResumeInBackground(
       '🟡 Resume status → PROCESSING',
     );
 
-    /**
-     * Call Gemini.
-     */
     const analysis =
       await resumeAIService.analyzeResume(
         extractedText,
@@ -116,12 +127,6 @@ async function analyzeResumeInBackground(
       '✅ Gemini analysis completed.',
     );
 
-    /**
-     * Store AI analysis.
-     *
-     * Repository automatically marks
-     * status = COMPLETED.
-     */
     await updateResumeAIAnalysis(
       resumeId,
       analysis,

@@ -1,13 +1,16 @@
 import { Router } from 'express';
 
-import { authMiddleware } from '../../../middleware/auth.middleware.js';
 import upload from '../../../config/multer.js';
+import { authMiddleware } from '../../../middleware/auth.middleware.js';
 
 import {
-  uploadResume,
-  getUserResumes,
-  getResume,
   deleteResumeController,
+  downloadResumeController,
+  getResume,
+  getUserResumes,
+  previewResumeController,
+  setActiveResumeController,
+  uploadResume,
 } from '../controllers/resume.controller.js';
 
 const router = Router();
@@ -40,6 +43,21 @@ router.get(
 router.get(
   '/:id',
   getResume,
+);
+
+router.get(
+  '/:id/preview',
+  previewResumeController,
+);
+
+router.get(
+  '/:id/download',
+  downloadResumeController,
+);
+
+router.patch(
+  '/:id/activate',
+  setActiveResumeController,
 );
 
 router.delete(

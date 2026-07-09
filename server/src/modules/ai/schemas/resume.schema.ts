@@ -4,9 +4,29 @@ import { z } from 'zod';
  * ================================================================
  * Resume Intelligence Schema
  * ================================================================
- *
- * Every Gemini response MUST satisfy this schema.
  */
+
+const ExperienceSchema = z.object({
+  company: z.string(),
+  role: z.string(),
+  duration: z.string(),
+  location: z.string().optional().nullable(),
+  description: z.array(z.string()),
+});
+
+const ProjectSchema = z.object({
+  name: z.string(),
+  technologies: z.array(z.string()),
+  description: z.string(),
+  highlights: z.array(z.string()),
+});
+
+const EducationSchema = z.object({
+  institution: z.string(),
+  degree: z.string(),
+  duration: z.string(),
+  cgpa: z.string().optional().nullable(),
+});
 
 export const ResumeSchema = z.object({
   candidate: z.object({
@@ -45,19 +65,32 @@ export const ResumeSchema = z.object({
     devops: z.array(z.string()),
   }),
 
-  experience: z.array(z.any()),
+  experience: z.array(
+    ExperienceSchema,
+  ),
 
-  projects: z.array(z.any()),
+  projects: z.array(
+    ProjectSchema,
+  ),
 
-  education: z.array(z.any()),
+  education: z.array(
+    EducationSchema,
+  ),
 
-  certifications: z.array(z.string()),
+  certifications: z.array(
+    z.string(),
+  ),
 
-  strengths: z.array(z.string()),
+  strengths: z.array(
+    z.string(),
+  ),
 
-  recommendedRoles: z.array(z.string()),
+  recommendedRoles: z.array(
+    z.string(),
+  ),
 });
 
-export type ResumeAnalysis = z.infer<
-  typeof ResumeSchema
->;
+export type ResumeAnalysis =
+  z.infer<
+    typeof ResumeSchema
+  >;

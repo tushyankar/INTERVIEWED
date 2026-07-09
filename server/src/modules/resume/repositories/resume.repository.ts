@@ -4,18 +4,41 @@ import prisma from '../../../lib/prisma.js';
 
 export interface CreateResumeInput {
   userId: string;
+
   originalName: string;
+
   filename: string;
+
+  filePath: string;
+
   mimeType: string;
+
   size: number;
+
   extractedText: string;
+
+  isActive: boolean;
 }
 
-export async function createResume(data: CreateResumeInput) {
+/**
+ * ============================================================
+ * Create Resume
+ * ============================================================
+ */
+
+export async function createResume(
+  data: CreateResumeInput,
+) {
   return prisma.resume.create({
     data,
   });
 }
+
+/**
+ * ============================================================
+ * Resume Status
+ * ============================================================
+ */
 
 export async function updateResumeStatus(
   resumeId: string,
@@ -30,6 +53,12 @@ export async function updateResumeStatus(
     },
   });
 }
+
+/**
+ * ============================================================
+ * AI Analysis
+ * ============================================================
+ */
 
 export async function updateResumeAIAnalysis(
   resumeId: string,
@@ -46,7 +75,15 @@ export async function updateResumeAIAnalysis(
   });
 }
 
-export async function findResumeById(id: string) {
+/**
+ * ============================================================
+ * Queries
+ * ============================================================
+ */
+
+export async function findResumeById(
+  id: string,
+) {
   return prisma.resume.findUnique({
     where: {
       id,
@@ -54,7 +91,9 @@ export async function findResumeById(id: string) {
   });
 }
 
-export async function findLatestResumeByUserId(userId: string) {
+export async function findLatestResumeByUserId(
+  userId: string,
+) {
   return prisma.resume.findFirst({
     where: {
       userId,
@@ -65,18 +104,76 @@ export async function findLatestResumeByUserId(userId: string) {
   });
 }
 
-export async function findAllResumesByUserId(userId: string) {
-  return prisma.resume.findMany({
+export async function findActiveResumeByUserId(
+  userId: string,
+) {
+  return prisma.resume.findFirst({
     where: {
       userId,
-    },
-    orderBy: {
-      createdAt: 'desc',
+      isActive: true,
     },
   });
 }
 
-export async function deleteResume(id: string) {
+export async function findAllResumesByUserId(
+  userId: string,
+) {
+  return prisma.resume.findMany({
+    where: {
+      userId,
+    },
+    orderBy: [
+      {
+        isActive: 'desc',
+      },
+      {
+        createdAt: 'desc',
+      },
+    ],
+  });
+}
+
+/**
+ * ============================================================
+ * Active Resume
+ * ============================================================
+ */
+
+export async function clearActiveResume(
+  userId: string,
+) {
+  return prisma.resume.updateMany({
+    where: {
+      userId,
+    },
+    data: {
+      isActive: false,
+    },
+  });
+}
+
+export async function setActiveResume(
+  resumeId: string,
+) {
+  return prisma.resume.update({
+    where: {
+      id: resumeId,
+    },
+    data: {
+      isActive: true,
+    },
+  });
+}
+
+/**
+ * ============================================================
+ * Delete
+ * ============================================================
+ */
+
+export async function deleteResume(
+  id: string,
+) {
   return prisma.resume.delete({
     where: {
       id,
