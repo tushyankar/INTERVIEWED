@@ -1,26 +1,50 @@
 import { Router } from 'express';
 
 import { authMiddleware } from '../../../middleware/auth.middleware.js';
-import { uploadResume } from '../controllers/resume.controller.js';
 import upload from '../../../config/multer.js';
+
+import {
+  uploadResume,
+  getUserResumes,
+  getResume,
+  deleteResumeController,
+} from '../controllers/resume.controller.js';
 
 const router = Router();
 
 /**
- * Resume Routes
+ * ================================================================
+ * Authentication
+ * ================================================================
  */
 
+router.use(authMiddleware);
+
 /**
- * POST /api/v1/resume/upload
- *
- * Protected Route
- * Accepts a single PDF file with the field name "resume".
+ * ================================================================
+ * Resume Routes
+ * ================================================================
  */
+
 router.post(
   '/upload',
-  authMiddleware,
   upload.single('resume'),
   uploadResume,
+);
+
+router.get(
+  '/',
+  getUserResumes,
+);
+
+router.get(
+  '/:id',
+  getResume,
+);
+
+router.delete(
+  '/:id',
+  deleteResumeController,
 );
 
 export default router;

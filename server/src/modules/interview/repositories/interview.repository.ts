@@ -1,3 +1,5 @@
+import { InterviewStatus } from '@prisma/client';
+
 import prisma from '../../../lib/prisma.js';
 
 import type {
@@ -13,9 +15,10 @@ export interface AIQuestion {
 
 /**
  * ================================================================
- * Create Interview + Questions
+ * Create Interview
  * ================================================================
  */
+
 export async function createInterview(
   data: CreateInterviewInput,
   questions: AIQuestion[] = [],
@@ -50,12 +53,66 @@ export async function createInterview(
  * Find Interview
  * ================================================================
  */
+
 export async function findInterviewById(
   id: string,
 ) {
   return prisma.interview.findUnique({
     where: {
       id,
+    },
+
+    include: {
+      questions: {
+        orderBy: {
+          order: 'asc',
+        },
+
+        include: {
+          responses: true,
+        },
+      },
+    },
+  });
+}
+
+/**
+ * ================================================================
+ * Find Question
+ * ================================================================
+ */
+
+export async function findQuestionById(
+  questionId: string,
+) {
+  return prisma.question.findUnique({
+    where: {
+      id: questionId,
+    },
+
+    include: {
+      responses: true,
+      interview: true,
+    },
+  });
+}
+
+/**
+ * ================================================================
+ * Start Interview
+ * ================================================================
+ */
+
+export async function startInterview(
+  interviewId: string,
+) {
+  return prisma.interview.update({
+    where: {
+      id: interviewId,
+    },
+
+    data: {
+      status: InterviewStatus.IN_PROGRESS,
     },
 
     include: {
@@ -70,9 +127,30 @@ export async function findInterviewById(
 
 /**
  * ================================================================
+ * Finish Interview
+ * ================================================================
+ */
+
+export async function completeInterview(
+  interviewId: string,
+) {
+  return prisma.interview.update({
+    where: {
+      id: interviewId,
+    },
+
+    data: {
+      status: InterviewStatus.COMPLETED,
+    },
+  });
+}
+
+/**
+ * ================================================================
  * User Interviews
  * ================================================================
  */
+
 export async function findUserInterviews(
   userId: string,
 ) {
@@ -96,6 +174,7 @@ export async function findUserInterviews(
  * Delete Interview
  * ================================================================
  */
+
 export async function removeInterview({
   interviewId,
   userId,

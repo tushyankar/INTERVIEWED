@@ -1,62 +1,63 @@
 import { Router } from 'express';
 
 import { authMiddleware } from '../../../middleware/auth.middleware.js';
+import { validateRequest } from '../../../middleware/validateRequest.js';
 
 import {
   createInterview,
   deleteInterview,
+  finishInterview,
   getInterview,
   getUserInterviews,
+  startInterview,
 } from '../controllers/interview.controller.js';
 
-import { createInterviewSchema } from '../validators/interview.validator.js';
-import { validateRequest } from '../../../middleware/validateRequest.js';
+import {
+  createInterviewSchema,
+} from '../validators/interview.validator.js';
 
 const router = Router();
 
 /**
  * ================================================================
- * All Interview Routes Require Authentication
+ * Authentication
  * ================================================================
  */
+
 router.use(authMiddleware);
 
 /**
  * ================================================================
- * Create AI Interview
+ * Interview CRUD
  * ================================================================
  */
+
 router.post(
   '/',
   validateRequest(createInterviewSchema),
   createInterview,
 );
 
-/**
- * ================================================================
- * Get All User Interviews
- * ================================================================
- */
+router.post(
+  '/:id/start',
+  startInterview,
+);
+
+router.post(
+  '/:id/finish',
+  finishInterview,
+);
+
 router.get(
   '/',
   getUserInterviews,
 );
 
-/**
- * ================================================================
- * Get Single Interview
- * ================================================================
- */
 router.get(
   '/:id',
   getInterview,
 );
 
-/**
- * ================================================================
- * Delete Interview
- * ================================================================
- */
 router.delete(
   '/:id',
   deleteInterview,

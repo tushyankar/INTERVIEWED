@@ -1,4 +1,7 @@
-import { InterviewStatus } from '@prisma/client';
+export interface CreateInterviewRequest {
+  role: string;
+  difficulty: string;
+}
 
 export interface CreateInterviewInput {
   userId: string;
@@ -6,29 +9,25 @@ export interface CreateInterviewInput {
   difficulty: string;
 }
 
-export interface CreateInterviewRequest {
-  role: string;
-  difficulty: string;
-}
-
-export interface InterviewResponse {
-  id: string;
-  role: string;
-  difficulty: string;
-  status: InterviewStatus;
-  createdAt: Date;
-}
-
-export interface InterviewListResponse {
-  id: string;
-  role: string;
-  difficulty: string;
-  status: InterviewStatus;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export interface DeleteInterviewInput {
   interviewId: string;
   userId: string;
+}
+
+export interface StartInterviewInput {
+  interviewId: string;
+  userId: string;
+}
+
+export interface FinishInterviewInput {
+  interviewId: string;
+  userId: string;
+}
+
+export interface InterviewSession {
+  interviewId: string;
+  currentQuestion: number;
+  totalQuestions: number;
+  completedQuestions: number;
+  status: string;
 }
