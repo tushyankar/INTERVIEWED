@@ -167,3 +167,4 @@ model RefreshToken {
   @@index([userId])
   @@map("refresh_tokens")
 }
+

@@ -1,32 +1,40 @@
-import { OllamaProvider } from '../providers/ollama.provider.js';
+import { aiService } from './ai.service.js';
+
 import { buildResumePrompt } from '../prompts/resume.prompt.js';
+
 import {
-  ResumeAIResult,
   ResumeSchema,
-} from '../validators/resume.validator.js';
+  type ResumeAnalysis,
+} from '../schemas/resume.schema.js';
 
-export class ResumeAIService {
-  private readonly provider = new OllamaProvider();
+import { parseAIResponse } from '../parsers/json.parser.js';
 
+/**
+ * ================================================================
+ * Resume AI Service
+ * ================================================================
+ *
+ * Converts extracted resume text into a structured
+ * Resume Intelligence object.
+ */
+
+class ResumeAIService {
   async analyzeResume(
     extractedText: string,
-  ): Promise<ResumeAIResult> {
-    const prompt = buildResumePrompt(extractedText);
+  ): Promise<ResumeAnalysis> {
+    const prompt = buildResumePrompt(
+      extractedText,
+    );
 
-    const response = await this.provider.generate(prompt);
+    const response =
+      await aiService.generate(prompt);
 
-    let parsed: unknown;
-
-    try {
-      parsed = JSON.parse(response);
-    } catch {
-      throw new Error(
-        'Ollama returned an invalid JSON response.',
-      );
-    }
-
-    return ResumeSchema.parse(parsed);
+    return parseAIResponse(
+      response,
+      ResumeSchema,
+    );
   }
 }
 
-export const resumeAIService = new ResumeAIService();
+export const resumeAIService =
+  new ResumeAIService();

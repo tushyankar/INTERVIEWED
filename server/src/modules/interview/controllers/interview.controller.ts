@@ -11,6 +11,11 @@ import {
 
 import type { CreateInterviewRequest } from '../types/interview.types.js';
 
+/**
+ * ================================================================
+ * Create Interview
+ * ================================================================
+ */
 export const createInterview = asyncHandler(
   async (req: Request, res: Response) => {
     const body = req.body as CreateInterviewRequest;
@@ -23,12 +28,17 @@ export const createInterview = asyncHandler(
 
     return res.status(201).json({
       success: true,
-      message: 'Interview created successfully.',
+      message: 'Interview generated successfully.',
       data: interview,
     });
   },
 );
 
+/**
+ * ================================================================
+ * Get Interview
+ * ================================================================
+ */
 export const getInterview = asyncHandler(
   async (req: Request, res: Response) => {
     const interview = await getInterviewService(
@@ -43,11 +53,15 @@ export const getInterview = asyncHandler(
   },
 );
 
+/**
+ * ================================================================
+ * Get User Interviews
+ * ================================================================
+ */
 export const getUserInterviews = asyncHandler(
   async (req: Request, res: Response) => {
-    const interviews = await getUserInterviewsService(
-      req.user!.id,
-    );
+    const interviews =
+      await getUserInterviewsService(req.user!.id);
 
     return res.status(200).json({
       success: true,
@@ -56,6 +70,11 @@ export const getUserInterviews = asyncHandler(
   },
 );
 
+/**
+ * ================================================================
+ * Delete Interview
+ * ================================================================
+ */
 export const deleteInterview = asyncHandler(
   async (req: Request, res: Response) => {
     await deleteInterviewService({

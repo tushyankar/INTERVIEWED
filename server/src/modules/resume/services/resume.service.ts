@@ -3,8 +3,9 @@ import fs from 'node:fs/promises';
 import { ResumeStatus } from '@prisma/client';
 import { PDFParse } from 'pdf-parse';
 
-import { resumeAIService } from '../../ai/services/resume-ai.service.js';
 import ApiError from '../../../utils/ApiError.js';
+
+import { resumeAIService } from '../../ai/services/resume-ai.service.js';
 
 import {
   createResume,
@@ -17,12 +18,17 @@ export interface UploadedResume {
   file: Express.Multer.File;
 }
 
+/**
+ * ============================================================
+ * Upload Resume
+ * ============================================================
+ */
 export async function processResume({
   userId,
   file,
 }: UploadedResume) {
   try {
-    console.log('📄 Reading uploaded file...');
+    console.log('📄 Reading uploaded resume...');
 
     const buffer = await fs.readFile(file.path);
 
@@ -53,6 +59,9 @@ export async function processResume({
 
     console.log(`✅ Resume created: ${resume.id}`);
 
+    /**
+     * Fire-and-forget AI analysis.
+     */
     void analyzeResumeInBackground(
       resume.id,
       extractedText,
@@ -60,7 +69,10 @@ export async function processResume({
 
     return resume;
   } catch (error) {
-    console.error(error);
+    console.error(
+      '❌ Resume processing failed:',
+      error,
+    );
 
     throw new ApiError(
       500,
@@ -69,38 +81,62 @@ export async function processResume({
   }
 }
 
+/**
+ * ============================================================
+ * Background Resume Intelligence
+ * ============================================================
+ */
 async function analyzeResumeInBackground(
   resumeId: string,
   extractedText: string,
 ): Promise<void> {
   try {
-    console.log('🚀 Background analysis started');
+    console.log(
+      '🚀 Starting Gemini resume analysis...',
+    );
 
     await updateResumeStatus(
       resumeId,
       ResumeStatus.PROCESSING,
     );
 
-    console.log('🟡 Status updated to PROCESSING');
+    console.log(
+      '🟡 Resume status → PROCESSING',
+    );
 
-    console.log('🤖 Calling Ollama...');
-
+    /**
+     * Call Gemini.
+     */
     const analysis =
       await resumeAIService.analyzeResume(
         extractedText,
       );
 
-    console.log('✅ Ollama responded');
+    console.log(
+      '✅ Gemini analysis completed.',
+    );
 
+    /**
+     * Store AI analysis.
+     *
+     * Repository automatically marks
+     * status = COMPLETED.
+     */
     await updateResumeAIAnalysis(
       resumeId,
       analysis,
     );
 
-    console.log('✅ AI analysis saved');
+    console.log(
+      '🟢 Resume status → COMPLETED',
+    );
+
+    console.log(
+      '💾 Resume Intelligence saved.',
+    );
   } catch (error) {
     console.error(
-      '❌ Background AI analysis failed:',
+      '❌ Gemini analysis failed:',
       error,
     );
 
@@ -109,6 +145,8 @@ async function analyzeResumeInBackground(
       ResumeStatus.FAILED,
     );
 
-    console.log('🔴 Status updated to FAILED');
+    console.log(
+      '🔴 Resume status → FAILED',
+    );
   }
 }

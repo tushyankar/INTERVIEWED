@@ -1,44 +1,70 @@
-export function buildResumePrompt(resumeText: string): string {
+/**
+ * ============================================================
+ * Resume Analysis Prompt
+ * ============================================================
+ *
+ * This prompt converts an extracted resume into a structured
+ * JSON object. The AI MUST respond with valid JSON only.
+ */
+
+export function buildResumePrompt(
+  resumeText: string,
+): string {
   return `
 You are an expert technical recruiter and resume parser.
 
-Your task is to analyze the resume below and extract structured information.
+Analyse the following resume.
 
 Return ONLY valid JSON.
 
-Do not include markdown.
-Do not include explanations.
-Do not wrap the JSON inside \`\`\`.
+Do NOT include markdown.
 
-The JSON MUST match this schema exactly:
+Do NOT include explanations.
+
+Use this exact schema.
 
 {
-  "summary": "string",
-  "skills": ["string"],
-  "experience": [
-    {
-      "company": "string",
-      "role": "string",
-      "duration": "string",
-      "description": "string"
-    }
-  ],
-  "education": [
-    {
-      "institution": "string",
-      "degree": "string",
-      "year": "string"
-    }
-  ],
-  "projects": [
-    {
-      "name": "string",
-      "description": "string",
-      "technologies": ["string"]
-    }
-  ],
-  "certifications": ["string"]
+  "candidate": {
+    "name": "",
+    "email": "",
+    "phone": "",
+    "location": ""
+  },
+
+  "summary": "",
+
+  "careerLevel": "",
+
+  "skills": {
+    "languages": [],
+    "frameworks": [],
+    "libraries": [],
+    "databases": [],
+    "tools": [],
+    "cloud": [],
+    "devops": []
+  },
+
+  "experience": [],
+
+  "projects": [],
+
+  "education": [],
+
+  "certifications": [],
+
+  "strengths": [],
+
+  "recommendedRoles": []
 }
+
+Career level must be one of:
+
+- Student
+- Fresher
+- Junior
+- Mid
+- Senior
 
 Resume:
 

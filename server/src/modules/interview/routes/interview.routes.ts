@@ -9,28 +9,57 @@ import {
   getUserInterviews,
 } from '../controllers/interview.controller.js';
 
+import { createInterviewSchema } from '../validators/interview.validator.js';
+import { validateRequest } from '../../../middleware/validateRequest.js';
+
 const router = Router();
 
 /**
- * ----------------------------------------
- * Protected Routes
- * ----------------------------------------
+ * ================================================================
+ * All Interview Routes Require Authentication
+ * ================================================================
  */
-
 router.use(authMiddleware);
 
 /**
- * ----------------------------------------
- * Interview Routes
- * ----------------------------------------
+ * ================================================================
+ * Create AI Interview
+ * ================================================================
  */
+router.post(
+  '/',
+  validateRequest(createInterviewSchema),
+  createInterview,
+);
 
-router.post('/', createInterview);
+/**
+ * ================================================================
+ * Get All User Interviews
+ * ================================================================
+ */
+router.get(
+  '/',
+  getUserInterviews,
+);
 
-router.get('/', getUserInterviews);
+/**
+ * ================================================================
+ * Get Single Interview
+ * ================================================================
+ */
+router.get(
+  '/:id',
+  getInterview,
+);
 
-router.get('/:id', getInterview);
-
-router.delete('/:id', deleteInterview);
+/**
+ * ================================================================
+ * Delete Interview
+ * ================================================================
+ */
+router.delete(
+  '/:id',
+  deleteInterview,
+);
 
 export default router;
